@@ -1,0 +1,245 @@
+[Title]
+This is a simulation to find the particle flux at various altitudes in the martian atmosphere
+for protons a discrete energy is assigned for each simualtion in order to obtain a response
+function.
+
+[Parameters]
+c Normal PHITS calculation mode
+icntl=0
+c Random seed generated from starting time
+rseed = -1
+c Number of Histories per batch
+maxcas   =    10000000
+c Number of batches
+maxbch   =      10
+c minimum energies for various particle types, may need to be changed in future
+emin(1)  = 1.000000000E-03 # (D=1.0) cut-off energy of proton (MeV)
+emin(2)  = 1.000000000E-10 # (D=1.0) cut-off energy of neutron (MeV)
+dmax(2)  =  20.0000000     # (D=emin(2)) data max. energy of neutron (MeV)
+emin(12) = 1.000000000E-01 # (D=1.d9) cut-off energy of electron (MeV)
+emin(13) = 1.000000000E-01 # (D=1.d9) cut-off energy of positron (MeV)
+emin(14) = 1.000000000E-03 # (D=1.d9) cut-off energy of photon (MeV)
+dmax(12) =  1000.00000     # (D=emin(12)) data max. energy of electron (MeV)
+dmax(13) =  1000.00000     # (D=emin(13)) data max. energy of positron (MeV)
+dmax(14) =  1000.00000     # (D=emin(14)) data max. energy of photon (MeV)
+emin(15) = 1.000000000E-03 # (D=1.d9) cut-off energy of deuteron (MeV)
+emin(16) = 1.000000000E-03 # (D=1.d9) cut-off energy of triton (MeV)
+emin(17) = 1.000000000E-03 # (D=1.d9) cut-off energy of 3He (MeV)
+emin(18) = 1.000000000E-03 # (D=1.d9) cut-off energy of Alpha (MeV)
+emin(19) = 1.000000000E-03 # (D=1.d9) cut-off energy of Nucleus (MeV)
+e-mode   =           2	   # Event generator mode
+itall    =           1     # Output tally after each batch
+negs     =           0     # (D=0) =1 EGS photon and electron
+irqmd    =           1	   # Use of JQMD-2.0 in nuclear reactions
+icxsni   =           2	   # Nucleon-Nucleus collisions (Sato’s formula)
+nspred   =           0     # Angular straggling (Lynch's formula)
+nedisp   =           0     # Energy straggling (Landau-Vavilov)
+c Different directories based on system/beocat
+file(6)  = phits_test.out
+c file(7)  = C:/phits/data/xsdir.jnd
+c file(20) = C:/phits/XS/egs
+file(7)  = /homes/mike5454/phits/data/xsdir.jnd
+file(20) = /homes/mike5454/phits/XS/egs
+c file(7)  = /homes/bahadori/phits/data/xsdir.jnd # (D=/Users/bahadori-work/PHITS/phits/data/xsdir.jnd) nuclear data input file name
+c file(20) = /homes/bahadori/phits/XS/egs # (D=/Users/bahadori-work/PHITS/phits/XS/egs) EGS library data folder name
+
+[Source]
+set: c50[pi * FLAG4 * FLAG4]
+c define a spherical shell source
+s-type = 9
+c source type
+proj = proton
+c sphere center location
+x0 = 0
+y0 = 0
+z0 = 0
+c r1 = r2 for isotropic source
+r1 = FLAG4
+r2 = FLAG4
+totfact = c50
+c isotropic source
+dir = iso
+c mono-energetic source
+   e0 = FLAG3
+		
+[Material]
+c MARS Atmosphere using earth isotope abundances
+c   (density calculated from Mars Climate Database)
+m1    6012    -0.263965188671
+	  7014    -0.0173629494665
+	  7015    -6.41316585402E-05
+	  8016    -0.703880847672
+	 18040    -0.0147268825313
+c 
+c MARS Regolith using earth isotope abundances
+c           (density = 1.7 g/cm^3)
+m2	 1001    -0.000927870434089
+	 1002    -1.06717372418E-07
+	 8016    -0.360694192643
+	11023    -0.0918189076912
+	12024    -0.0383381272244
+	12025    -0.00485354186915
+	12026    -0.00534374959793
+	13027    -0.107762408322
+	14028    -0.0825066152678
+	14029    -0.00418948538944
+	14030    -0.00276165022756
+	19039    -0.0894577508848
+	19040    -0.145624435891
+	19041    -1.82697899691E-05
+	20040    -0.0105093453376
+	20042    -0.0775848082916
+	20043    -0.000517813628543
+	20044    -0.000108044574735
+	20046    -0.0016694887622
+	20048    -3.20132073288E-06
+	26054    -0.000149661744262
+	26056    -0.0037769381899
+	26057    -0.059289852297
+	26058    -0.0013692612531
+
+[Surface]
+c Surface Cards and Stuff
+c ****************** MARS ATMOSPHERE *********************
+c  Spheres at Origin    Radius (cm)
+c 
+FLAG1
+
+[Cell]
+c ***************** CELL CARD ****************************
+c Cell / Material / Density / Boundaries
+c 
+FLAG2
+
+[Volume]
+c Volume of the cells calculated using
+c values defined in the surface card
+reg vol
+FLAG6
+
+[T-cross]
+c For Proton and Neutrons applicable energies are 0.01eV to 1E5eV
+c Other particles 1 to 1E5 MeV
+c pg 2 of Analytical Model for Estimating the Zenith Angle Dependence of Terrestrial Cosmic Ray Fluxes
+c By Tatsuhiko Sato
+c We correct for the mass of the particle in the case of deuterons Helium nuclei and tritons
+mesh = reg
+FLAG7
+ r-in   r-out   area
+FLAG8
+c Energy min, max, and number of groups divided by log scale (10 per decade)
+e-type = 3
+ne = 130
+emin = 1E-8
+emax = 1E5
+c Particle type
+part = neutron proton
+c Units in 1/cm^2/MeV/sr/source
+unit = 5
+c Angle mesh in theta divided equally on linear scale
+a-type = -2
+na = 6
+amin = 0
+amax = 180
+axis = reg
+c output (non-integrated) angle mesh current by surface crossing
+output = a-curr
+ginfo=1
+file = flux_results_proton_neutron.dat
+
+[T-cross]
+mesh = reg
+FLAG7
+ r-in   r-out   area
+FLAG8
+e-type = 3
+ne = 50
+emin = 2
+emax = 2E5
+part = deuteron
+unit = 5
+a-type = -2
+na = 6
+amin = 0
+amax = 180
+axis = reg
+output = a-curr
+file = flux_results_deuteron.dat
+
+[T-cross]
+mesh = reg
+FLAG7
+ r-in   r-out   area
+FLAG8
+e-type = 3
+ne = 50
+emin = 3
+emax = 3E5
+part =  triton 3he
+unit = 5
+a-type = -2
+na = 6
+amin = 0
+amax = 180
+axis = reg
+output = a-curr
+file = flux_results_triton_he3.dat
+
+[T-cross]
+mesh = reg
+FLAG7
+ r-in   r-out   area
+FLAG8
+e-type = 3
+ne = 50
+emin = 4
+emax = 4E5
+part = alpha
+unit = 5
+a-type = -2
+na = 6
+amin = 0
+amax = 180
+axis = reg
+output = a-curr
+file = flux_results_alpha.dat
+
+[T-cross]
+mesh = reg
+FLAG7
+ r-in   r-out   area
+FLAG8
+e-type = 3
+ne = 50
+emin = 1
+emax = 1E5
+part = electron positron muon+ muon-
+unit = 5
+a-type = -2
+na = 6
+amin = 0
+amax = 180
+axis = reg
+output = a-curr
+file = flux_results_electron_muon.dat
+
+[T-cross]
+mesh = reg
+FLAG7
+ r-in   r-out   area
+FLAG8
+e-type = 3
+ne = 50
+emin = 1
+emax = 1E5
+part = pion+ pion- pion0
+unit = 5
+a-type = -2
+na = 6
+amin = 0
+amax = 180
+axis = reg
+output = a-curr
+file = flux_results_pion.dat
+
+[END]
